@@ -30,8 +30,8 @@ func init() {
 		cfg.Get("mysql.host").(string),
 		cfg.Get("mysql.database").(string))
 
-	maxOpenConns, _ := strconv.ParseInt(cfg.Get("mysql.maxOpenConns").(string), 10, 64)
-	maxIdleConns, _ := strconv.ParseInt(cfg.Get("mysql.maxIdleConns").(string), 10, 64)
+	maxOpenConns, _ := strconv.ParseInt(cfg.Get("mysql.maxOpenConns").(string), 10, 32)
+	maxIdleConns, _ := strconv.ParseInt(cfg.Get("mysql.maxIdleConns").(string), 10, 32)
 
 	DB = &SqlConnPool{
 		DriverName:     "mysql",
@@ -80,7 +80,6 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 		rowMap := make(map[string]interface{})
 		for i, value := range values {
 			//rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
-			//fmt.Printf("%s -> %s\n", columns[i], value)
 			rowMap[columns[i]] = value
 		}
 		rowsMap = append(rowsMap, rowMap)
