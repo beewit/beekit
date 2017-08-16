@@ -8,7 +8,10 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-var Cache *RedisConnPool
+var (
+	Cache *RedisConnPool
+	cfg   = conf.New("config.json")
+)
 
 type RedisConnPool struct {
 	redisPool *redis.Pool
@@ -16,11 +19,13 @@ type RedisConnPool struct {
 
 func init() {
 	Cache = &RedisConnPool{}
-	maxOpenConns, _ := strconv.ParseInt(CFG.Get("maxOpenConns"), 10, 64)
-	maxIdleConns, _ := strconv.ParseInt(CFG.Get("maxIdleConns"), 10, 64)
-	database, _ := strconv.ParseInt(CFG.Get("database"), 10, 64)
+	maxOpenConns, _ := strconv.ParseInt(cfg.Get("redis.maxOpenConns").(string), 10, 64)
+	maxIdleConns, _ := strconv.ParseInt(cfg.Get("redis.maxIdleConns").(string), 10, 64)
+	database, _ := strconv.ParseInt(cfg.Get("redis.database").(string), 10, 64)
 
-	Cache.redisPool = newPool(CFG.Get("redis.host").(string), CFG.Get("password"), CFG(database), CFG(maxOpenConns), CFG(maxIdleConns))
+	Cache.redisPool = newPool(
+		cfg.Get("redis.host").(string),
+		cfg.Get("redis.password").(string), cfg.Get("database").(string), maxOpenConns, maxIdleConns)
 	if Cache.redisPool == nil {
 		panic("init redis failed！")
 	}

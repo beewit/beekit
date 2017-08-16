@@ -18,16 +18,20 @@ type SqlConnPool struct {
 	SqlDB          *sql.DB // 连接池
 }
 
-var DB *SqlConnPool
+var (
+	DB  *SqlConnPool
+	cfg = conf.New("config.json")
+)
 
 func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s",
-		CFG.Get("mysql.user").(string),
-		CFG.Get("mysql.password").(string),
-		CFG.Get("mysql.host").(string),
-		CFG.Get("mysql.database").(string))
-	maxOpenConns, _ := strconv.ParseInt(CFG.Get("maxOpenConns"), 10, 64)
-	maxIdleConns, _ := strconv.ParseInt(CFG.Get("maxIdleConns"), 10, 64)
+		cfg.Get("mysql.user").(string),
+		cfg.Get("mysql.password").(string),
+		cfg.Get("mysql.host").(string),
+		cfg.Get("mysql.database").(string))
+
+	maxOpenConns, _ := strconv.ParseInt(cfg.Get("mysql.maxOpenConns").(string), 10, 64)
+	maxIdleConns, _ := strconv.ParseInt(cfg.Get("mysql.maxIdleConns").(string), 10, 64)
 
 	DB = &SqlConnPool{
 		DriverName:     "mysql",
@@ -67,6 +71,7 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 	for i, _ := range values {
 		scanArgs[i] = &values[i]
 	}
+	fmt.Println(scanArgs)
 	rowsMap := make([]map[string]interface{}, 0, 10)
 	for rows.Next() {
 		rows.Scan(scanArgs...)
@@ -74,6 +79,7 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 		for i, value := range values {
 			rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
 		}
+		fmt.Println(rowMap)
 		rowsMap = append(rowsMap, rowMap)
 	}
 	if err = rows.Err(); err != nil {

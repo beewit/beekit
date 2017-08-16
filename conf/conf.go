@@ -7,12 +7,6 @@ import (
 	"strings"
 )
 
-var CFG Config
-
-func init() {
-	CFG = New("config.json")
-}
-
 //New new a Config
 func New(file string) Config {
 	return Config{file: file}
