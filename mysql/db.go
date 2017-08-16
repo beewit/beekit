@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/arnehormann/sqlinternals/mysqlinternals"
-
+	"github.com/beewit/beekit/conf"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -21,9 +21,13 @@ type SqlConnPool struct {
 var DB *SqlConnPool
 
 func init() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s", MYSQL["user"], MYSQL["password"], MYSQL["host"], MYSQL["database"])
-	maxOpenConns, _ := strconv.ParseInt(MYSQL["maxOpenConns"], 10, 64)
-	maxIdleConns, _ := strconv.ParseInt(MYSQL["maxIdleConns"], 10, 64)
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s",
+		CFG.Get("mysql.user").(string),
+		CFG.Get("mysql.password").(string),
+		CFG.Get("mysql.host").(string),
+		CFG.Get("mysql.database").(string))
+	maxOpenConns, _ := strconv.ParseInt(CFG.Get("maxOpenConns"), 10, 64)
+	maxIdleConns, _ := strconv.ParseInt(CFG.Get("maxIdleConns"), 10, 64)
 
 	DB = &SqlConnPool{
 		DriverName:     "mysql",

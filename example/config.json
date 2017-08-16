@@ -1,0 +1,28 @@
+{
+	"server":{
+		"ip":   "127.0.0.1",
+		"port": "8080"
+	},
+    "mysql":{
+		"host":         "127.0.0.1:3306",
+		"database":     "db",
+		"user":         "newie",
+		"password":     "pwd",
+		"maxOpenConns": "10",
+		"maxIdleConns": "10"	
+		
+    },
+    "redis":{
+        	"host":         "127.0.0.1:6379",
+		"database":     "0",
+		"password":     "",
+		"maxOpenConns": "10",
+		"maxIdleConns": "10"
+    },
+	"logger":{
+		"path":     "hive.log",
+		"level":    "7",
+		"maxdays":  "10",
+		"separate": "error"
+	}
+}

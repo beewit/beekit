@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/beewit/hive/config"
+	"github.com/beewit/beekit/conf"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -16,11 +16,11 @@ type RedisConnPool struct {
 
 func init() {
 	Cache = &RedisConnPool{}
-	maxOpenConns, _ := strconv.ParseInt(REDIS["maxOpenConns"], 10, 64)
-	maxIdleConns, _ := strconv.ParseInt(REDIS["maxIdleConns"], 10, 64)
-	database, _ := strconv.ParseInt(REDIS["database"], 10, 64)
+	maxOpenConns, _ := strconv.ParseInt(CFG.Get("maxOpenConns"), 10, 64)
+	maxIdleConns, _ := strconv.ParseInt(CFG.Get("maxIdleConns"), 10, 64)
+	database, _ := strconv.ParseInt(CFG.Get("database"), 10, 64)
 
-	Cache.redisPool = newPool(REDIS["host"], REDIS["password"], int(database), int(maxOpenConns), int(maxIdleConns))
+	Cache.redisPool = newPool(CFG.Get("redis.host").(string), CFG.Get("password"), CFG(database), CFG(maxOpenConns), CFG(maxIdleConns))
 	if Cache.redisPool == nil {
 		panic("init redis failed！")
 	}
