@@ -3,18 +3,16 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/beewit/beekit/mysql"
 )
 
+var (
+	DB = mysql.DB
+)
+
 func main() {
-	fmt.Println("Hello World!")
-	DB := mysql.DB
-	fmt.Println("i have sleep first")
-	time.Sleep(1 * time.Second)
-	fmt.Println("i wake up")
-	results, err := DB.Query("select * from user")
+	results, err := DB.Query("show tables")
 	if err != nil {
 		fmt.Errorf("error msg:", err)
 	}
@@ -22,6 +20,5 @@ func main() {
 		for k, v := range result {
 			fmt.Printf("%s -> %s\n", k, v)
 		}
-		fmt.Println(result)
 	}
 }

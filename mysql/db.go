@@ -64,22 +64,25 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 		return []map[string]interface{}{}, err
 	}
 	// 返回属性字典
-	columns, err := mysqlinternals.Columns(rows)
+	//columns, err := mysqlinternals.Columns(rows)
+	columns, err := rows.Columns()
+
 	// 获取字段类型
 	scanArgs := make([]interface{}, len(columns))
 	values := make([]sql.RawBytes, len(columns))
 	for i, _ := range values {
 		scanArgs[i] = &values[i]
 	}
-	fmt.Println(scanArgs)
+
 	rowsMap := make([]map[string]interface{}, 0, 10)
 	for rows.Next() {
 		rows.Scan(scanArgs...)
 		rowMap := make(map[string]interface{})
 		for i, value := range values {
-			rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
+			//rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
+			//fmt.Printf("%s -> %s\n", columns[i], value)
+			rowMap[columns[i]] = value
 		}
-		fmt.Println(rowMap)
 		rowsMap = append(rowsMap, rowMap)
 	}
 	if err = rows.Err(); err != nil {
