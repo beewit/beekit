@@ -6,7 +6,8 @@ import (
 )
 
 func Test_Config(t *testing.T) {
-	config := New("config.json")
+	//config := New("config.json")
+	config := GetCfg()
 	fmt.Println(config)
 
 	fmt.Println(config.Get("mysql.host"))
