@@ -14,6 +14,7 @@ func Error(c echo.Context, msg string, data interface{}) error {
 	return Result(c, 400, msg, data)
 }
 
+
 func Result(c echo.Context, ret int64, msg string, data interface{}) error {
 	resultMap := map[string]interface{}{
 		"ret":  ret,
@@ -23,4 +24,3 @@ func Result(c echo.Context, ret int64, msg string, data interface{}) error {
 	result, _ := json.Marshal(resultMap)
 	return c.String(http.StatusOK, string(result))
 }
-
