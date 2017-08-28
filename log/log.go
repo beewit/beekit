@@ -30,7 +30,6 @@ func init() {
 		cfg.Get("logger.level"),
 		cfg.Get("logger.separate"),
 	)
-	fmt.Println(conf)
 
 	logs.SetLogger(logs.AdapterMultiFile, conf)
 	logs.SetLogger("console")
