@@ -78,6 +78,17 @@ func (p *RedisConnPool) SetString(key string, value interface{}) (interface{}, e
 	return conn.Do("SET", key, value)
 }
 
+//// String（字符串）
+func (p *RedisConnPool) SetAndExpire(key string, value interface{}, expire int64) (interface{}, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	v, err := conn.Do("SET", key, value)
+	if err != nil {
+		v, err = conn.Do("EXPIRE", key, expire)
+	}
+	return v, err
+}
+
 func (p *RedisConnPool) GetString(key string) (string, error) {
 	// 从连接池里面获得一个连接
 	conn := p.redisPool.Get()
