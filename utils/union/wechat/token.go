@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/beewit/beekit/utils/union"
+	"github.com/beewit/beekit/utils/uhttp"
 	"github.com/beewit/beekit/redis"
+	"github.com/tiantour/uhttp"
 )
 
 // Token token
@@ -27,12 +28,12 @@ func NewToken() *Token {
 // Access token
 func (t Token) Access(code string) (Token, error) {
 	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%v&secret=%v&code=%v&grant_type=authorization_code",
 		AppID,
 		AppSecret,
 		code,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})
@@ -49,11 +50,11 @@ func (t Token) Access(code string) (Token, error) {
 // Refresh token
 func (t Token) Refresh(refreshToken string) (Token, error) {
 	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%s&grant_type=refresh_token&refresh_token=%s",
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=%v&grant_type=refresh_token&refresh_token=%v",
 		AppID,
 		refreshToken,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})
@@ -64,11 +65,11 @@ func (t Token) Refresh(refreshToken string) (Token, error) {
 // Verify token
 func (t Token) Verify(accessToken, openID string) (Token, error) {
 	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%s&openid=%s",
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/auth?access_token=%v&openid=%v",
 		accessToken,
 		openID,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})
@@ -97,11 +98,11 @@ func (t Token) Cache() (string, error) {
 // Data data
 func (t Token) Data() (Token, error) {
 	result := Token{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%v&secret=%v",
 		AppID,
 		AppSecret,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})

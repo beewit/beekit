@@ -3,7 +3,7 @@ package wechat
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beewit/beekit/utils/union"
+	"github.com/beewit/beekit/utils/uhttp"
 )
 
 var (
@@ -38,11 +38,11 @@ func NewWechat() *Wechat {
 // User user
 func (w Wechat) User(accessToken, openID string) (Wechat, error) {
 	result := Wechat{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%v&openid=%v",
 		accessToken,
 		openID,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})

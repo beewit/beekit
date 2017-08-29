@@ -3,7 +3,7 @@ package qq
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beewit/beekit/utils/union"
+	"github.com/beewit/beekit/utils/uhttp"
 )
 
 var (
@@ -39,12 +39,12 @@ func NewQQ() *QQ {
 // User user
 func (q QQ) User(accessToken, openID string) (QQ, error) {
 	result := QQ{}
-	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
+	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%v?&oauth_consumer_key=%v&openid=%v",
 		accessToken,
 		AppID,
 		openID,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})

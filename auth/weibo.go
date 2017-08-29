@@ -50,7 +50,7 @@ type (
 // Info info
 func (u *User) Info(appID, accessToken, uID string) (User, error) {
 	result := User{}
-	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%s&access_token=%s&uid=%s",
+	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?source=%v&access_token=%v&uid=%v",
 		appID,
 		accessToken,
 		uID,

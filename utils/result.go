@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"github.com/labstack/echo"
 	"net/http"
 	"fmt"
@@ -21,8 +20,9 @@ func Result(c echo.Context, ret int64, msg string, data interface{}) error {
 		"msg":  msg,
 		"data": data,
 	}
-	result, _ := json.Marshal(resultMap)
-	return c.String(http.StatusOK, string(result))
+	//result, _ := json.Marshal(resultMap)
+	c.Response().Header().Set("charset","UTF-8")
+	return c.JSON(http.StatusOK, resultMap)
 }
 
 func Redirect(c echo.Context, url string) error {
@@ -36,11 +36,11 @@ func Alert(c echo.Context, tip string) error {
 func RedirectAndAlert(c echo.Context, tip, url string) error {
 	var js string
 	if tip != "" {
-		js += fmt.Sprintf("alert('%s');", tip)
+		js += fmt.Sprintf("alert('%v');", tip)
 	} else {
-		js += fmt.Sprintf("location.href = '%s';", url)
+		js += fmt.Sprintf("location.href = '%v';", url)
 	}
-	return ResultHtml(c, fmt.Sprintf("<script>%s</script>", js))
+	return ResultHtml(c, fmt.Sprintf("<script>%v</script>", js))
 }
 
 func ResultHtml(c echo.Context, html string) error {

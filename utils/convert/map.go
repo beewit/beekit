@@ -2,6 +2,8 @@ package convert
 
 import (
 	"reflect"
+	"encoding/json"
+	"fmt"
 )
 
 // 把map转成map[string]interface{}，key的值使用MustString计算。
@@ -90,4 +92,38 @@ func MustMapStringInterfaceRecursionsInArrayInterface(leafAry interface{}) []int
 	}
 
 	return resAry
+}
+
+func ToArrayMapString(maps []map[string]interface{}) []map[string]string {
+	records := []map[string]string{}
+	for i := 0; i < len(maps); i++ {
+		maps := ToMapString(maps[i])
+		records = append(records, maps)
+	}
+	return records
+}
+
+func ToMapString(m map[string]interface{}) map[string]string {
+	record := make(map[string]string)
+	for k, v := range m {
+		val := fmt.Sprintf("%s", v)
+		record[k] = val
+	}
+	return record
+
+}
+
+func Obj2Map(obj interface{}) (mapObj map[string]interface{}, err error) {
+	// 结构体转json
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
+	println(string(b[:]))
+	var result map[string]interface{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		panic(err)
+		return nil, err
+	}
+	return result, nil
 }

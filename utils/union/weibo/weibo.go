@@ -3,7 +3,7 @@ package weibo
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beewit/beekit/utils/union"
+	"github.com/beewit/beekit/utils/uhttp"
 )
 
 type (
@@ -61,11 +61,11 @@ func NewWeibo() *Weibo {
 // User user
 func (w Weibo) User(accessToken, uID string) (Weibo, error) {
 	result := Weibo{}
-	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?access_token=%s&uid=%s",
+	url := fmt.Sprintf("https://api.weibo.com/2/users/show.json?access_token=%v&uid=%v",
 		accessToken,
 		uID,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})
@@ -78,13 +78,14 @@ func (w Weibo) User(accessToken, uID string) (Weibo, error) {
 
 func (w Weibo) GetAccessToken(appKey, appSecret, redirectUri, code string) (AccessToken, error) {
 	result := AccessToken{}
-	url := fmt.Sprintf("https://api.weibo.com/oauth2/access_token?client_id=%s&client_secret=%s&grant_type=authorization_code&redirect_uri=%s&code=%s",
+	url := fmt.Sprintf("https://api.weibo.com/oauth2/access_token?client_id=%v&client_secret=%v&grant_type=authorization_code" +
+		"&redirect_uri=%v&code=%v",
 		appKey,
 		appSecret,
 		redirectUri,
 		code,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "POST",
 		URL:    url,
 	})

@@ -7,7 +7,7 @@ import (
 
 // 强制转换一个对象为string
 func MustString(value interface{}) string {
-	return fmt.Sprintf("%s", value)
+	return fmt.Sprintf("%v", value)
 }
 
 // 转换一个对象为string

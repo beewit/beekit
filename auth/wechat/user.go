@@ -8,7 +8,7 @@ import (
 // Info user
 func (u *User) Info(accessToken, openID string) (User, error) {
 	result := User{}
-	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s",
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/userinfo?access_token=%v&openid=%v",
 		accessToken,
 		openID,
 	)

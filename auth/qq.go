@@ -30,7 +30,7 @@ type (
 // Info info
 func (u *User) Info(appID, accessToken, openID string) (User, error) {
 	result := User{}
-	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%s?&oauth_consumer_key=%s&openid=%s",
+	url := fmt.Sprintf("https://graph.qq.com/user/get_user_info?access_token=%v?&oauth_consumer_key=%v&openid=%v",
 		accessToken,
 		appID,
 		openID,

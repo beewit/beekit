@@ -3,7 +3,7 @@ package wechat
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/beewit/beekit/utils/union"
+	"github.com/beewit/beekit/utils/uhttp"
 )
 
 // Ticket ticket
@@ -26,10 +26,10 @@ func (t Ticket) Do() (Ticket, error) {
 	if err != nil {
 		return result, err
 	}
-	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi",
+	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%v&type=jsapi",
 		token,
 	)
-	body, err := fetch.Cmd(fetch.Request{
+	body, err := uhttp.Cmd(uhttp.Request{
 		Method: "GET",
 		URL:    url,
 	})
