@@ -66,30 +66,39 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 	if err != nil {
 		return nil, err
 	}
-	count := len(columns)
-	tableData := make([]map[string]interface{}, 0)
-	values := make([]interface{}, count)
-	valuesNew := make([]interface{}, count)
-	for rows.Next() {
-		for i := 0; i < count; i++ {
-			valuesNew[i] = &values[i]
-		}
-		rows.Scan(valuesNew...)
-		entry := make(map[string]interface{})
-		for i, col := range columns {
-			var v interface{}
-			val := values[i]
-			b, ok := val.([]byte)
-			if ok {
-				v = string(b)
-			} else {
-				v = val
-			}
-			entry[col] = v
-		}
-		tableData = append(tableData, entry)
+	values := make([]interface{}, len(columns))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
 	}
-	return tableData, nil
+	list := []map[string]interface{}{}
+	// 这里需要初始化为空数组，否则在查询结果为空的时候，返回的会是一个未初始化的指针
+	for rows.Next() {
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return nil, err
+		}
+
+		ret := make(map[string]interface{})
+		for i, col := range values {
+			if col == nil {
+				ret[columns[i]] = nil
+			} else {
+				switch val := (*scanArgs[i].(*interface{})).(type) {
+				case []byte:
+					ret[columns[i]] = string(val)
+					break
+				default:
+					ret[columns[i]] = val
+				}
+			}
+		}
+		list = append(list, ret)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return list, nil
 }
 
 func (p *SqlConnPool) execute(sqlStr string, args ...interface{}) (sql.Result, error) {
@@ -157,30 +166,39 @@ func (t *SqlConnTransaction) Query(queryStr string, args ...interface{}) ([]map[
 	if err != nil {
 		return nil, err
 	}
-	count := len(columns)
-	tableData := make([]map[string]interface{}, 0)
-	values := make([]interface{}, count)
-	valuesNew := make([]interface{}, count)
-	for rows.Next() {
-		for i := 0; i < count; i++ {
-			valuesNew[i] = &values[i]
-		}
-		rows.Scan(valuesNew...)
-		entry := make(map[string]interface{})
-		for i, col := range columns {
-			var v interface{}
-			val := values[i]
-			b, ok := val.([]byte)
-			if ok {
-				v = string(b)
-			} else {
-				v = val
-			}
-			entry[col] = v
-		}
-		tableData = append(tableData, entry)
+	values := make([]interface{}, len(columns))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
 	}
-	return tableData, nil
+	list := []map[string]interface{}{}
+	// 这里需要初始化为空数组，否则在查询结果为空的时候，返回的会是一个未初始化的指针
+	for rows.Next() {
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return nil, err
+		}
+
+		ret := make(map[string]interface{})
+		for i, col := range values {
+			if col == nil {
+				ret[columns[i]] = nil
+			} else {
+				switch val := (*scanArgs[i].(*interface{})).(type) {
+				case []byte:
+					ret[columns[i]] = string(val)
+					break
+				default:
+					ret[columns[i]] = val
+				}
+			}
+		}
+		list = append(list, ret)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return list, nil
 }
 
 func (t *SqlConnTransaction) execute(sqlStr string, args ...interface{}) (sql.Result, error) {
