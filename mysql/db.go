@@ -24,7 +24,7 @@ var (
 )
 
 func init() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s",
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=Local",
 		cfg.Get("mysql.user").(string),
 		cfg.Get("mysql.password").(string),
 		cfg.Get("mysql.host").(string),
