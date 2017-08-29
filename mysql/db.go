@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/arnehormann/sqlinternals/mysqlinternals"
 	"github.com/beewit/beekit/conf"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -63,31 +62,34 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 	if err != nil {
 		return []map[string]interface{}{}, err
 	}
-	// 返回属性字典
-	//columns, err := mysqlinternals.Columns(rows)
 	columns, err := rows.Columns()
-
-	// 获取字段类型
-	scanArgs := make([]interface{}, len(columns))
-	values := make([]sql.RawBytes, len(columns))
-	for i, _ := range values {
-		scanArgs[i] = &values[i]
+	if err != nil {
+		return nil, err
 	}
-
-	rowsMap := make([]map[string]interface{}, 0, 10)
+	count := len(columns)
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	valuesNew := make([]interface{}, count)
 	for rows.Next() {
-		rows.Scan(scanArgs...)
-		rowMap := make(map[string]interface{})
-		for i, value := range values {
-			//rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
-			rowMap[columns[i]] = value
+		for i := 0; i < count; i++ {
+			valuesNew[i] = &values[i]
 		}
-		rowsMap = append(rowsMap, rowMap)
+		rows.Scan(valuesNew...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
 	}
-	if err = rows.Err(); err != nil {
-		return []map[string]interface{}{}, err
-	}
-	return rowsMap, nil
+	return tableData, nil
 }
 
 func (p *SqlConnPool) execute(sqlStr string, args ...interface{}) (sql.Result, error) {
@@ -151,27 +153,34 @@ func (t *SqlConnTransaction) Query(queryStr string, args ...interface{}) ([]map[
 	if err != nil {
 		return []map[string]interface{}{}, err
 	}
-	// 返回属性字典
-	columns, err := mysqlinternals.Columns(rows)
-	// 获取字段类型
-	scanArgs := make([]interface{}, len(columns))
-	values := make([]sql.RawBytes, len(columns))
-	for i, _ := range values {
-		scanArgs[i] = &values[i]
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
 	}
-	rowsMap := make([]map[string]interface{}, 0, 10)
+	count := len(columns)
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	valuesNew := make([]interface{}, count)
 	for rows.Next() {
-		rows.Scan(scanArgs...)
-		rowMap := make(map[string]interface{})
-		for i, value := range values {
-			rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
+		for i := 0; i < count; i++ {
+			valuesNew[i] = &values[i]
 		}
-		rowsMap = append(rowsMap, rowMap)
+		rows.Scan(valuesNew...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
 	}
-	if err = rows.Err(); err != nil {
-		return []map[string]interface{}{}, err
-	}
-	return rowsMap, nil
+	return tableData, nil
 }
 
 func (t *SqlConnTransaction) execute(sqlStr string, args ...interface{}) (sql.Result, error) {

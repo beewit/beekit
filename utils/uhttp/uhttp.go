@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 // Request request
@@ -32,6 +33,15 @@ func Cmd(args Request) ([]byte, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, nil
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func PostForm(url string, data url.Values) ([]byte, error) {
+	println(url)
+	resp, err := http.PostForm(url, data)
+	if err != nil {
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)

@@ -11,9 +11,9 @@ func MustString(value interface{}) string {
 }
 
 // 转换一个对象为string
-func ToString(value interface{}) (string, error) {
+func ToString(value interface{}) string {
 	// fake方法用于统一接口
-	return MustString(value), nil
+	return MustString(value)
 }
 
 // 强转一个字符串数组

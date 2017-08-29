@@ -97,8 +97,8 @@ func MustMapStringInterfaceRecursionsInArrayInterface(leafAry interface{}) []int
 func ToArrayMapString(maps []map[string]interface{}) []map[string]string {
 	records := []map[string]string{}
 	for i := 0; i < len(maps); i++ {
-		maps := ToMapString(maps[i])
-		records = append(records, maps)
+		m := ToMapString(maps[i])
+		records = append(records, m)
 	}
 	return records
 }
