@@ -2,12 +2,11 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 	"strconv"
 
-	"github.com/arnehormann/sqlinternals/mysqlinternals"
 	"github.com/beewit/beekit/conf"
 	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
 
 type SqlConnPool struct {
@@ -50,31 +49,46 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 	if err != nil {
 		return []map[string]interface{}{}, err
 	}
-	// 返回属性字典
-	//columns, err := mysqlinternals.Columns(rows)
 	columns, err := rows.Columns()
-
-	// 获取字段类型
-	scanArgs := make([]interface{}, len(columns))
-	values := make([]sql.RawBytes, len(columns))
-	for i, _ := range values {
+	if err != nil {
+		return nil, err
+	}
+	values := make([]interface{}, len(columns))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
 		scanArgs[i] = &values[i]
 	}
-
-	rowsMap := make([]map[string]interface{}, 0, 10)
+	list := []map[string]interface{}{}
+	// 这里需要初始化为空数组，否则在查询结果为空的时候，返回的会是一个未初始化的指针
 	for rows.Next() {
-		rows.Scan(scanArgs...)
-		rowMap := make(map[string]interface{})
-		for i, value := range values {
-			//rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
-			rowMap[columns[i]] = value
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return nil, err
 		}
-		rowsMap = append(rowsMap, rowMap)
+
+		ret := make(map[string]interface{})
+		for i, col := range values {
+			if col == nil {
+				ret[columns[i]] = nil
+			} else {
+				switch val := (*scanArgs[i].(*interface{})).(type) {
+				case []byte:
+					ret[columns[i]] = string(val)
+					break
+				case time.Time:
+					ret[columns[i]] = val.Format("2006-01-02 15:04:05")
+					break
+				default:
+					ret[columns[i]] = val
+				}
+			}
+		}
+		list = append(list, ret)
 	}
 	if err = rows.Err(); err != nil {
-		return []map[string]interface{}{}, err
+		return nil, err
 	}
-	return rowsMap, nil
+	return list, nil
 }
 
 func (p *SqlConnPool) execute(sqlStr string, args ...interface{}) (sql.Result, error) {
@@ -138,27 +152,46 @@ func (t *SqlConnTransaction) Query(queryStr string, args ...interface{}) ([]map[
 	if err != nil {
 		return []map[string]interface{}{}, err
 	}
-	// 返回属性字典
-	columns, err := mysqlinternals.Columns(rows)
-	// 获取字段类型
-	scanArgs := make([]interface{}, len(columns))
-	values := make([]sql.RawBytes, len(columns))
-	for i, _ := range values {
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	values := make([]interface{}, len(columns))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
 		scanArgs[i] = &values[i]
 	}
-	rowsMap := make([]map[string]interface{}, 0, 10)
+	list := []map[string]interface{}{}
+	// 这里需要初始化为空数组，否则在查询结果为空的时候，返回的会是一个未初始化的指针
 	for rows.Next() {
-		rows.Scan(scanArgs...)
-		rowMap := make(map[string]interface{})
-		for i, value := range values {
-			rowMap[columns[i].Name()] = bytes2RealType(value, columns[i].MysqlType())
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			return nil, err
 		}
-		rowsMap = append(rowsMap, rowMap)
+
+		ret := make(map[string]interface{})
+		for i, col := range values {
+			if col == nil {
+				ret[columns[i]] = nil
+			} else {
+				switch val := (*scanArgs[i].(*interface{})).(type) {
+				case []byte:
+					ret[columns[i]] = string(val)
+					break
+				case time.Time:
+					ret[columns[i]] = val.Format("2006-01-02 15:04:05")
+					break
+				default:
+					ret[columns[i]] = val
+				}
+			}
+		}
+		list = append(list, ret)
 	}
 	if err = rows.Err(); err != nil {
-		return []map[string]interface{}{}, err
+		return nil, err
 	}
-	return rowsMap, nil
+	return list, nil
 }
 
 func (t *SqlConnTransaction) execute(sqlStr string, args ...interface{}) (sql.Result, error) {

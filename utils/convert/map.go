@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"encoding/json"
 	"fmt"
+	"github.com/beewit/beekit/log"
 )
 
 // 把map转成map[string]interface{}，key的值使用MustString计算。
@@ -101,6 +102,41 @@ func ToArrayMapString(maps []map[string]interface{}) []map[string]string {
 		records = append(records, m)
 	}
 	return records
+}
+
+func ToArrayMapStr(m []map[string]interface{}) (string, error) {
+	if m == nil {
+		return "", nil
+	}
+	bt, err := json.Marshal(m)
+	if err != nil {
+		return "", err
+	}
+	return string(bt[:]), nil
+}
+
+func ToMapByte(m map[string]interface{}) []byte {
+	if m == nil {
+		return nil
+	}
+	bt, err := json.Marshal(m)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil
+	}
+	return bt[:]
+}
+
+func ToInterfaceByte(m interface{}) []byte {
+	if m == nil {
+		return nil
+	}
+	bt, err := json.Marshal(m)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil
+	}
+	return bt[:]
 }
 
 func ToMapString(m map[string]interface{}) map[string]string {

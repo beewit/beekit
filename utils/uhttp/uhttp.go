@@ -25,14 +25,14 @@ func Cmd(args Request) ([]byte, error) {
 		),
 	)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	req.Close = true
 	req.Header = args.Header
 	// get response
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)

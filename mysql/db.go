@@ -7,6 +7,7 @@ import (
 
 	"github.com/beewit/beekit/conf"
 	_ "github.com/go-sql-driver/mysql"
+	"time"
 )
 
 type SqlConnPool struct {
@@ -87,6 +88,9 @@ func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]
 				switch val := (*scanArgs[i].(*interface{})).(type) {
 				case []byte:
 					ret[columns[i]] = string(val)
+					break
+				case time.Time:
+					ret[columns[i]] = val.Format("2006-01-02 15:04:05")
 					break
 				default:
 					ret[columns[i]] = val
@@ -187,6 +191,9 @@ func (t *SqlConnTransaction) Query(queryStr string, args ...interface{}) ([]map[
 				switch val := (*scanArgs[i].(*interface{})).(type) {
 				case []byte:
 					ret[columns[i]] = string(val)
+					break
+				case time.Time:
+					ret[columns[i]] = val.Format("2006-01-02 15:04:05")
 					break
 				default:
 					ret[columns[i]] = val

@@ -4,14 +4,39 @@ import (
 	"github.com/labstack/echo"
 	"net/http"
 	"fmt"
+	"encoding/json"
+	"github.com/beewit/beekit/log"
 )
 
+type ResultParam struct {
+	Ret  int64 `json:"ret"`
+	Msg  string `json:"msg"`
+	Data interface{} `json:"data"`
+}
+
+const (
+	SUCCESS_CODE = 200
+	ERROR_CODE   = 400
+	LOGIN_INVALID_CODE   = 402
+
+)
+
+func ToResultParam(b []byte) ResultParam {
+	var rp ResultParam
+	err := json.Unmarshal(b[:], &rp)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return ResultParam{}
+	}
+	return rp
+}
+
 func Success(c echo.Context, msg string, data interface{}) error {
-	return Result(c, 200, msg, data)
+	return Result(c, SUCCESS_CODE, msg, data)
 }
 
 func Error(c echo.Context, msg string, data interface{}) error {
-	return Result(c, 400, msg, data)
+	return Result(c, ERROR_CODE, msg, data)
 }
 
 func Result(c echo.Context, ret int64, msg string, data interface{}) error {
@@ -20,8 +45,6 @@ func Result(c echo.Context, ret int64, msg string, data interface{}) error {
 		"msg":  msg,
 		"data": data,
 	}
-	//result, _ := json.Marshal(resultMap)
-	c.Response().Header().Set("charset","UTF-8")
 	return c.JSON(http.StatusOK, resultMap)
 }
 
@@ -37,12 +60,15 @@ func RedirectAndAlert(c echo.Context, tip, url string) error {
 	var js string
 	if tip != "" {
 		js += fmt.Sprintf("alert('%v');", tip)
-	} else {
-		js += fmt.Sprintf("location.href = '%v';", url)
 	}
+	js += fmt.Sprintf("location.href = '%v';", url)
 	return ResultHtml(c, fmt.Sprintf("<script>%v</script>", js))
 }
 
 func ResultHtml(c echo.Context, html string) error {
 	return c.HTML(http.StatusOK, html)
+}
+
+func ResultString(c echo.Context, str string) error {
+	return c.String(http.StatusOK, str)
 }
