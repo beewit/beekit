@@ -142,21 +142,53 @@ func ToInterfaceByte(m interface{}) []byte {
 func ToMapString(m map[string]interface{}) map[string]string {
 	record := make(map[string]string)
 	for k, v := range m {
-		val := fmt.Sprintf("%s", v)
+		val := fmt.Sprintf("%v", v)
 		record[k] = val
 	}
 	return record
 
 }
 
-func Obj2Map(obj interface{}) (mapObj map[string]interface{}, err error) {
+func Obj2Map(obj interface{}) (map[string]interface{}, error) {
 	// 结构体转json
 	b, err := json.Marshal(obj)
 	if err != nil {
 		return nil, err
 	}
-	println(string(b[:]))
+	log.Logger.Info(string(b[:]))
 	var result map[string]interface{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		panic(err)
+		return nil, err
+	}
+	return result, nil
+}
+
+
+func Obj2MapString(obj interface{}) (map[string]string, error) {
+	// 结构体转json
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
+	log.Logger.Info(string(b[:]))
+	var result map[string]string
+	if err := json.Unmarshal(b, &result); err != nil {
+		panic(err)
+		return nil, err
+	}
+	return result, nil
+}
+
+
+func Obj2ListMapString(obj interface{}) ([]map[string]string, error) {
+	// 结构体转json
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
+	log.Logger.Info(string(b[:]))
+	var result []map[string]string
 	if err := json.Unmarshal(b, &result); err != nil {
 		panic(err)
 		return nil, err
