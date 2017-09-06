@@ -8,6 +8,10 @@ import (
 )
 
 func Read(path string) string {
+	return string(ReadByte(path))
+}
+
+func ReadByte(path string) []byte {
 	fi, err := os.Open(path)
 	if err != nil {
 		println("Files Logs Error:" + err.Error())
@@ -19,7 +23,7 @@ func Read(path string) string {
 		println("Files Logs Error:" + err.Error())
 		panic(err)
 	}
-	return string(buf)
+	return buf
 }
 
 //系统分隔符

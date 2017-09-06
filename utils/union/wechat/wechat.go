@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/beewit/beekit/utils/uhttp"
+	"strings"
+	"github.com/beewit/beekit/utils/convert"
+	"github.com/pkg/errors"
+	"github.com/beewit/beekit/log"
 )
 
 var (
@@ -51,4 +55,30 @@ func (w Wechat) User(accessToken, openID string) (Wechat, error) {
 	}
 	err = json.Unmarshal(body, &result)
 	return result, err
+}
+
+func (w Wechat) GetAccessToken(appId, secret, code string) (map[string]interface{}, error) {
+	url := fmt.Sprintf("https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+		appId,
+		secret,
+		code,
+	)
+	body, err := uhttp.Cmd(uhttp.Request{
+		Method: "GET",
+		URL:    url,
+	})
+	if err != nil {
+		return nil, err
+	}
+	res := string(body[:])
+	log.Logger.Info(res)
+	flog := strings.Contains(res, "errcode")
+	if flog {
+		return nil, errors.New(res)
+	}
+	m, err2 := convert.Byte2Map(body)
+	if err2 != nil {
+		return nil, nil
+	}
+	return m, nil
 }

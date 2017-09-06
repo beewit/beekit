@@ -1,6 +1,6 @@
 package enum
 
 const (
-	NORMAL = "正常"
-	FREEZE = "冻结"
+	NORMAL    = "正常"
+	FREEZE    = "冻结"
 )

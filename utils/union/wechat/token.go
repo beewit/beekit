@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/beewit/beekit/utils/uhttp"
 	"github.com/beewit/beekit/redis"
-	"github.com/tiantour/uhttp"
 )
 
 // Token token

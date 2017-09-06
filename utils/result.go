@@ -15,10 +15,10 @@ type ResultParam struct {
 }
 
 const (
-	SUCCESS_CODE = 200
-	ERROR_CODE   = 400
-	LOGIN_INVALID_CODE   = 402
-
+	SUCCESS_CODE       = 200
+	ERROR_CODE         = 400
+	LOGIN_INVALID_CODE = 402
+	NULL_DATA          = 404
 )
 
 func ToResultParam(b []byte) ResultParam {
@@ -37,6 +37,10 @@ func Success(c echo.Context, msg string, data interface{}) error {
 
 func Error(c echo.Context, msg string, data interface{}) error {
 	return Result(c, ERROR_CODE, msg, data)
+}
+
+func NullData(c echo.Context) error {
+	return Result(c, NULL_DATA, "暂无数据", nil)
 }
 
 func Result(c echo.Context, ret int64, msg string, data interface{}) error {
