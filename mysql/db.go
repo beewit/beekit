@@ -8,6 +8,8 @@ import (
 	"github.com/beewit/beekit/conf"
 	_ "github.com/go-sql-driver/mysql"
 	"time"
+	"strings"
+	"errors"
 )
 
 type SqlConnPool struct {
@@ -128,6 +130,29 @@ func (p *SqlConnPool) Insert(insertStr string, args ...interface{}) (int64, erro
 
 }
 
+func (p *SqlConnPool) InsertMap(table string, m map[string]interface{}) (int64, error) {
+	c := len(m)
+	var keys = make([]string, c)
+	var pars = make([]string, c)
+	var values = make([]interface{}, c)
+	i := 0
+	for k, v := range m {
+		keys[i] = k
+		pars[i] = "?"
+		values[i] = v
+		i++
+	}
+	sql := fmt.Sprintf("INSERT %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	println(sql)
+	result, err := p.execute(sql, values...)
+	if err != nil {
+		return 0, err
+	}
+	lastid, err := result.LastInsertId()
+	return lastid, err
+
+}
+
 func (p *SqlConnPool) Delete(deleteStr string, args ...interface{}) (int64, error) {
 	result, err := p.execute(deleteStr, args...)
 	if err != nil {
@@ -149,6 +174,23 @@ func (p *SqlConnPool) Begin() (*SqlConnTransaction, error) {
 		oneSqlConnTransaction.SqlTx, err = p.SqlDB.Begin()
 	}
 	return oneSqlConnTransaction, err
+}
+
+func (p *SqlConnPool) Tx(f func(tx *SqlConnTransaction), errFunc func(err error)) error {
+	tx, _ := p.Begin()
+	return tx.Tx(f, errFunc)
+}
+
+func (t *SqlConnTransaction) Tx(f func(tx *SqlConnTransaction), errFunc func(err error)) error {
+	defer func() {
+		if err := recover(); err != nil {
+			e := fmt.Sprintf("%v", err)
+			t.Rollback()
+			errFunc(errors.New(e))
+		}
+	}()
+	f(t)
+	return t.Commit()
 }
 
 // 封装的单个事务连接的方法
@@ -223,6 +265,28 @@ func (t *SqlConnTransaction) Update(updateStr string, args ...interface{}) (int6
 
 func (t *SqlConnTransaction) Insert(insertStr string, args ...interface{}) (int64, error) {
 	result, err := t.execute(insertStr, args...)
+	if err != nil {
+		return 0, err
+	}
+	lastid, err := result.LastInsertId()
+	return lastid, err
+}
+
+func (t *SqlConnTransaction) InsertMap(table string, m map[string]interface{}) (int64, error) {
+	c := len(m)
+	var keys = make([]string, c)
+	var pars = make([]string, c)
+	var values = make([]interface{}, c)
+	i := 0
+	for k, v := range m {
+		keys[i] = k
+		pars[i] = "?"
+		values[i] = v
+		i++
+	}
+	sql := fmt.Sprintf("INSERT %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	println(sql)
+	result, err := t.execute(sql, values...)
 	if err != nil {
 		return 0, err
 	}
