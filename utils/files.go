@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/beewit/beekit/log"
 )
 
 func Read(path string) string {
@@ -58,6 +59,53 @@ func CurrentDirectory() string {
 		panic(err)
 	}
 	return strings.Replace(dir, "\\", "/", -1)
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func MkdirAll(path string) error {
+	if os.IsPathSeparator('\\') { //前边的判断是否是系统的分隔符
+		path = strings.Replace(path, "/", "\\", -1)
+	}
+	flog, err := PathExists(path)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return err
+	}
+	if flog {
+		return nil
+	}
+	err2 := os.MkdirAll(path, os.ModePerm)
+
+	if err2 != nil {
+		log.Logger.Error(err2.Error())
+		return err2
+	}
+	return nil
+}
+
+func CreateFile(path string) (*os.File, error) {
+	i := strings.LastIndex(path, "/")
+	dir := string([]rune(path)[0:i])
+	mErr := MkdirAll(dir)
+	if mErr != nil {
+		return nil, mErr
+	}
+	file, err := os.Create(path)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return file, nil
 }
 
 func JsonPath(params ...string) string {

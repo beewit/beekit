@@ -2,100 +2,114 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
 
 const (
-	CEpoch         = 1474802888000
-	CWorkerIdBits  = 10 // Num of WorkerId Bits
-	CSenquenceBits = 12 // Num of Sequence Bits
+	twepoch        = int64(1417937700000) // 默认起始的时间戳 1449473700000 。计算时，减去这个值
+	DistrictIdBits = uint(2)              //区域 所占用位置
+	NodeIdBits     = uint(4)              //节点 所占位置
+	sequenceBits   = uint(10)             //自增ID 所占用位置
 
-	CWorkerIdShift  = 12
-	CTimeStampShift = 22
+	/*
+	 * 1 符号位  |  39 时间戳                                     | 5 区域  |  9 节点       | 10 （毫秒内）自增ID
+	 * 0        |  0000000 00000000 00000000 00000000 00000000  | 00000  | 000000 000   |  000000 0000
+	 *
+	 */
+	maxNodeId     = -1 ^ (-1 << NodeIdBits)     //节点 ID 最大范围
+	maxDistrictId = -1 ^ (-1 << DistrictIdBits) //最大区域范围
 
-	CSequenceMask = 0xfff // equal as getSequenceMask()
-	CMaxWorker    = 0x3ff // equal as getMaxWorkerId()
+	nodeIdShift        = sequenceBits //左移次数
+	DistrictIdShift    = sequenceBits + NodeIdBits
+	timestampLeftShift = sequenceBits + NodeIdBits + DistrictIdBits
+	sequenceMask       = -1 ^ (-1 << sequenceBits)
+	maxNextIdsNum      = 100 //单次获取ID的最大数量
 )
 
-// IdWorker Struct
 type IdWorker struct {
-	workerId      int64
-	lastTimeStamp int64
-	sequence      int64
-	maxWorkerId   int64
-	lock          *sync.Mutex
+	sequence      int64 //序号
+	lastTimestamp int64 //最后时间戳
+	nodeId        int64 //节点ID
+	twepoch       int64
+	districtId    int64
+	mutex         sync.Mutex
 }
 
-// NewIdWorker Func: Generate NewIdWorker with Given workerid
-func NewIdWorker(workerid int64) (iw *IdWorker, err error) {
-	iw = new(IdWorker)
-
-	iw.maxWorkerId = getMaxWorkerId()
-
-	if workerid > iw.maxWorkerId || workerid < 0 {
-		return nil, errors.New("worker not fit")
+// NewIdWorker new a snowflake id generator object.
+func NewIdWorker(NodeId int64) (*IdWorker, error) {
+	var districtId int64
+	districtId = 1 //暂时默认给1 ，方便以后扩展
+	idWorker := &IdWorker{}
+	if NodeId > maxNodeId || NodeId < 0 {
+		fmt.Sprintf("NodeId Id can't be greater than %d or less than 0", maxNodeId)
+		return nil, errors.New(fmt.Sprintf("NodeId Id: %d error", NodeId))
 	}
-	iw.workerId = workerid
-	iw.lastTimeStamp = -1
-	iw.sequence = 0
-	iw.lock = new(sync.Mutex)
-	return iw, nil
-}
-
-func getMaxWorkerId() int64 {
-	return -1 ^ -1<<CWorkerIdBits
-}
-
-func getSequenceMask() int64 {
-	return -1 ^ -1<<CSenquenceBits
-}
-
-// return in ms
-func (iw *IdWorker) timeGen() int64 {
-	return time.Now().UnixNano() / 1000 / 1000
-}
-
-func (iw *IdWorker) timeReGen(last int64) int64 {
-	ts := time.Now().UnixNano()
-	for {
-		if ts < last {
-			ts = iw.timeGen()
-		} else {
-			break
-		}
+	if districtId > maxDistrictId || districtId < 0 {
+		fmt.Sprintf("District Id can't be greater than %d or less than 0", maxDistrictId)
+		return nil, errors.New(fmt.Sprintf("District Id: %d error", districtId))
 	}
-	return ts
+	idWorker.nodeId = NodeId
+	idWorker.districtId = districtId
+	idWorker.lastTimestamp = -1
+	idWorker.sequence = 0
+	idWorker.twepoch = twepoch
+	idWorker.mutex = sync.Mutex{}
+	fmt.Sprintf("worker starting. timestamp left shift %d, District id bits %d, worker id bits %d, sequence bits %d, workerid %d", timestampLeftShift, DistrictIdBits, NodeIdBits, sequenceBits, NodeId)
+	return idWorker, nil
 }
 
-// NewId Func: Generate next id
-func (iw *IdWorker) NextId() (ts int64, err error) {
-	iw.lock.Lock()
-	defer iw.lock.Unlock()
-	ts = iw.timeGen()
-	if ts == iw.lastTimeStamp {
-		iw.sequence = (iw.sequence + 1) & CSequenceMask
-		if iw.sequence == 0 {
-			ts = iw.timeReGen(ts)
+// timeGen generate a unix millisecond.
+func timeGen() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
+}
+
+// tilNextMillis spin wait till next millisecond.
+func tilNextMillis(lastTimestamp int64) int64 {
+	timestamp := timeGen()
+	for timestamp <= lastTimestamp {
+		timestamp = timeGen()
+	}
+	return timestamp
+}
+
+// NextId get a snowflake id.
+func (id *IdWorker) NextId() (int64, error) {
+	id.mutex.Lock()
+	defer id.mutex.Unlock()
+	return id.nextid()
+}
+
+// NextIds get snowflake ids.
+func (id *IdWorker) NextIds(num int) ([]int64, error) {
+	if num > maxNextIdsNum || num < 0 {
+		fmt.Sprintf("NextIds num can't be greater than %d or less than 0", maxNextIdsNum)
+		return nil, errors.New(fmt.Sprintf("NextIds num: %d error", num))
+	}
+	ids := make([]int64, num)
+	id.mutex.Lock()
+	defer id.mutex.Unlock()
+	for i := 0; i < num; i++ {
+		ids[i], _ = id.nextid()
+	}
+	return ids, nil
+}
+
+func (id *IdWorker) nextid() (int64, error) {
+	timestamp := timeGen()
+	if timestamp < id.lastTimestamp {
+		//    fmt.Sprintf("clock is moving backwards.  Rejecting requests until %d.", id.lastTimestamp)
+		return 0, errors.New(fmt.Sprintf("Clock moved backwards.  Refusing to generate id for %d milliseconds", id.lastTimestamp-timestamp))
+	}
+	if id.lastTimestamp == timestamp {
+		id.sequence = (id.sequence + 1) & sequenceMask
+		if id.sequence == 0 {
+			timestamp = tilNextMillis(id.lastTimestamp)
 		}
 	} else {
-		iw.sequence = 0
+		id.sequence = 0
 	}
-
-	if ts < iw.lastTimeStamp {
-		err = errors.New("Clock moved backwards, Refuse gen id")
-		return 0, err
-	}
-	iw.lastTimeStamp = ts
-	ts = (ts-CEpoch)<<CTimeStampShift | iw.workerId<<CWorkerIdShift | iw.sequence
-	return ts, nil
-}
-
-// ParseId Func: reverse uid to timestamp, workid, seq
-func ParseId(id int64) (t time.Time, ts int64, workerId int64, seq int64) {
-	seq = id & CSequenceMask
-	workerId = (id >> CWorkerIdShift) & CMaxWorker
-	ts = (id >> CTimeStampShift) + CEpoch
-	t = time.Unix(ts/1000, (ts%1000)*1000000)
-	return
+	id.lastTimestamp = timestamp
+	return ((timestamp - id.twepoch) << timestampLeftShift) | (id.districtId << DistrictIdShift) | (id.nodeId << nodeIdShift) | id.sequence, nil
 }
