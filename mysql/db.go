@@ -10,6 +10,9 @@ import (
 	"time"
 	"strings"
 	"errors"
+	"github.com/beewit/beekit/utils"
+	"github.com/beewit/beekit/log"
+	"github.com/beewit/beekit/utils/convert"
 )
 
 type SqlConnPool struct {
@@ -57,6 +60,32 @@ func (p *SqlConnPool) open() error {
 
 func (p *SqlConnPool) Close() error {
 	return p.SqlDB.Close()
+}
+
+func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*utils.PageData, error) {
+	if page.Where != "" {
+		page.Where = " WHERE " + page.Where
+	}
+	sql := fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s ", page.Table, page.Where)
+	m, err := p.Query(sql, args...)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	c := convert.MustInt64(m[0]["count"])
+
+	sql = fmt.Sprintf("SELECT %s FROM %s %s limit %d,%d", page.Fields, page.Table, page.Where, (page.PageIndex-1)*page.PageSize, page.PageSize)
+	m, err = p.Query(sql, args...)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return &utils.PageData{
+		PageIndex: page.PageIndex,
+		PageSize:  page.PageSize,
+		Count:     c,
+		Data:      m,
+	}, nil
 }
 
 func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]interface{}, error) {

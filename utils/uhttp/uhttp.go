@@ -18,7 +18,6 @@ type Request struct {
 // Cmd fetch command
 func Cmd(args Request) ([]byte, error) {
 	client := &http.Client{}
-	println(args.URL)
 	// set request
 	req, err := http.NewRequest(args.Method, args.URL,
 		bytes.NewReader(

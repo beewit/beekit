@@ -9,8 +9,8 @@ import (
 )
 
 type ResultParam struct {
-	Ret  int64 `json:"ret"`
-	Msg  string `json:"msg"`
+	Ret  int64       `json:"ret"`
+	Msg  string      `json:"msg"`
 	Data interface{} `json:"data"`
 }
 
@@ -41,6 +41,10 @@ func Error(c echo.Context, msg string, data interface{}) error {
 
 func NullData(c echo.Context) error {
 	return Result(c, NULL_DATA, "暂无数据", nil)
+}
+
+func ResultApi(c echo.Context, data interface{}) error {
+	return c.JSON(http.StatusOK, data)
 }
 
 func Result(c echo.Context, ret int64, msg string, data interface{}) error {

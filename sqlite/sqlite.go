@@ -7,6 +7,11 @@ import (
 	"github.com/beewit/beekit/conf"
 	_ "github.com/mattn/go-sqlite3"
 	"time"
+	"fmt"
+	"strings"
+	"github.com/beewit/beekit/utils"
+	"github.com/beewit/beekit/log"
+	"github.com/beewit/beekit/utils/convert"
 )
 
 type SqlConnPool struct {
@@ -41,6 +46,32 @@ func (p *SqlConnPool) open() error {
 
 func (p *SqlConnPool) Close() error {
 	return p.SqlDB.Close()
+}
+
+func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*utils.PageData, error) {
+	if page.Where != "" {
+		page.Where = " WHERE " + page.Where
+	}
+	sql := fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s ", page.Table, page.Where)
+	m, err := p.Query(sql, args...)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	c := convert.MustInt64(m[0]["count"])
+
+	sql = fmt.Sprintf("SELECT %s FROM %s %s limit %d OFFSET %d", page.Fields, page.Table, page.Where, page.PageSize, (page.PageIndex-1)*page.PageSize)
+	m, err = p.Query(sql, args...)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return nil, err
+	}
+	return &utils.PageData{
+		PageIndex: page.PageIndex,
+		PageSize:  page.PageSize,
+		Count:     c,
+		Data:      m,
+	}, nil
 }
 
 func (p *SqlConnPool) Query(queryStr string, args ...interface{}) ([]map[string]interface{}, error) {
@@ -102,6 +133,29 @@ func (p *SqlConnPool) Update(updateStr string, args ...interface{}) (int64, erro
 	}
 	affect, err := result.RowsAffected()
 	return affect, err
+}
+
+func (p *SqlConnPool) InsertMap(table string, m map[string]interface{}) (int64, error) {
+	c := len(m)
+	var keys = make([]string, c)
+	var pars = make([]string, c)
+	var values = make([]interface{}, c)
+	i := 0
+	for k, v := range m {
+		keys[i] = k
+		pars[i] = "?"
+		values[i] = v
+		i++
+	}
+	sql := fmt.Sprintf("INSERT %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	println(sql)
+	result, err := p.execute(sql, values...)
+	if err != nil {
+		return 0, err
+	}
+	lastid, err := result.LastInsertId()
+	return lastid, err
+
 }
 
 func (p *SqlConnPool) Insert(insertStr string, args ...interface{}) (int64, error) {
