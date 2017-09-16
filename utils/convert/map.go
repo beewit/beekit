@@ -115,6 +115,17 @@ func ToArrayMapStr(m []map[string]interface{}) (string, error) {
 	return string(bt[:]), nil
 }
 
+func ToMapStr(m map[string]interface{}) (string, error) {
+	if m == nil {
+		return "", nil
+	}
+	bt, err := json.Marshal(m)
+	if err != nil {
+		return "", err
+	}
+	return string(bt[:]), nil
+}
+
 func ToMapByte(m map[string]interface{}) []byte {
 	if m == nil {
 		return nil

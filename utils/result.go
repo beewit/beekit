@@ -15,10 +15,22 @@ type ResultParam struct {
 }
 
 const (
-	SUCCESS_CODE       = 200
-	ERROR_CODE         = 400
+	//成功
+	SUCCESS_CODE = 200
+	//错误
+	ERROR_CODE = 400
+	//授权失败
+	AUTH_FAIL = 401
+	//登陆无效
 	LOGIN_INVALID_CODE = 402
-	NULL_DATA          = 404
+	//失败
+	FAIL_DATA = 403
+	//数据为空
+	NULL_DATA = 404
+	//不是会员
+	NOT_MEMBER = 500
+	//会员续费通知
+	MEMBER_RENEW = 501
 )
 
 func ToResultParam(b []byte) ResultParam {
@@ -35,12 +47,28 @@ func Success(c echo.Context, msg string, data interface{}) error {
 	return Result(c, SUCCESS_CODE, msg, data)
 }
 
+func SuccessNullMsg(c echo.Context, data interface{}) error {
+	return Result(c, SUCCESS_CODE, "", data)
+}
+
 func Error(c echo.Context, msg string, data interface{}) error {
 	return Result(c, ERROR_CODE, msg, data)
 }
 
+func ErrorNull(c echo.Context, msg string) error {
+	return Result(c, ERROR_CODE, msg, nil)
+}
+
 func NullData(c echo.Context) error {
 	return Result(c, NULL_DATA, "暂无数据", nil)
+}
+
+func AuthFail(c echo.Context, msg string) error {
+	return Result(c, AUTH_FAIL, msg, nil)
+}
+
+func AuthFailNull(c echo.Context) error {
+	return Result(c, AUTH_FAIL, "未登录或登陆已失效", nil)
 }
 
 func ResultApi(c echo.Context, data interface{}) error {

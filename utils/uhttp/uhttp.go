@@ -39,7 +39,6 @@ func Cmd(args Request) ([]byte, error) {
 }
 
 func PostForm(url string, data url.Values) ([]byte, error) {
-	println(url)
 	resp, err := http.PostForm(url, data)
 	if err != nil {
 	}
