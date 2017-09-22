@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/beewit/beekit/conf"
-	_ "github.com/go-sql-driver/mysql"
-	"time"
-	"strings"
 	"errors"
-	"github.com/beewit/beekit/utils"
+	"strings"
+	"time"
+
+	"github.com/beewit/beekit/conf"
 	"github.com/beewit/beekit/log"
+	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
+	_ "github.com/go-sql-driver/mysql"
+	"sort"
 )
 
 type SqlConnPool struct {
@@ -165,13 +167,63 @@ func (p *SqlConnPool) InsertMap(table string, m map[string]interface{}) (int64, 
 	var pars = make([]string, c)
 	var values = make([]interface{}, c)
 	i := 0
-	for k, v := range m {
+
+	var keysSort []string
+	for k := range m {
+		keysSort = append(keysSort, k)
+	}
+	sort.Strings(keysSort)
+
+	for _, k := range keysSort {
 		keys[i] = k
 		pars[i] = "?"
-		values[i] = v
+		values[i] = m[k]
 		i++
 	}
-	sql := fmt.Sprintf("INSERT %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	sql := fmt.Sprintf("INSERT INTO %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	println(sql)
+	result, err := p.execute(sql, values...)
+	if err != nil {
+		return 0, err
+	}
+	lastid, err := result.LastInsertId()
+	return lastid, err
+
+}
+
+func (p *SqlConnPool) InsertMapList(table string, ms []map[string]interface{}) (int64, error) {
+	var key string
+	var par = make([]string, len(ms))
+	var values = make([]interface{}, len(ms)*len(ms[0]))
+
+	for j := 0; j < len(ms); j++ {
+		c := len(ms[j])
+		var keys = make([]string, c)
+		var pars = make([]string, c)
+		i := 0
+
+		var keysSort []string
+		for k := range ms[j] {
+			keysSort = append(keysSort, k)
+		}
+		sort.Strings(keysSort)
+
+		for _, k := range keysSort {
+			keys[i] = k
+			pars[i] = "?"
+			l := i + (j * len(ms[j]))
+			values[l] = ms[j][k]
+			i++
+			fmt.Println("Key:", k, "Value:", values[l])
+		}
+		if key == "" {
+			key = strings.Join(keys, ",")
+		}
+
+		par[j] = fmt.Sprintf("(%s)", strings.Join(pars, ","))
+
+	}
+	sql := fmt.Sprintf("INSERT INTO %s (%s)VALUES%s", table, key, strings.Join(par, ","))
 	println(sql)
 	result, err := p.execute(sql, values...)
 	if err != nil {
@@ -307,13 +359,58 @@ func (t *SqlConnTransaction) InsertMap(table string, m map[string]interface{}) (
 	var pars = make([]string, c)
 	var values = make([]interface{}, c)
 	i := 0
-	for k, v := range m {
+
+	var keysSort []string
+	for k := range m {
+		keysSort = append(keysSort, k)
+	}
+	sort.Strings(keysSort)
+
+	for _, k := range keysSort {
 		keys[i] = k
 		pars[i] = "?"
-		values[i] = v
+		values[i] = m[k]
 		i++
 	}
-	sql := fmt.Sprintf("INSERT %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	sql := fmt.Sprintf("INSERT INTO %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
+	println(sql)
+	return t.Insert(sql, values...)
+}
+
+func (t *SqlConnTransaction) InsertMapList(table string, ms []map[string]interface{}) (int64, error) {
+
+	var key string
+	var par = make([]string, len(ms))
+	var values = make([]interface{}, len(ms)*len(ms[0]))
+
+	for j := 0; j < len(ms); j++ {
+		c := len(ms[j])
+		var keys = make([]string, c)
+		var pars = make([]string, c)
+		i := 0
+
+		var keysSort []string
+		for k := range ms[j] {
+			keysSort = append(keysSort, k)
+		}
+		sort.Strings(keysSort)
+
+		for _, k := range keysSort {
+			keys[i] = k
+			pars[i] = "?"
+			l := i + (j * len(ms[j]))
+			values[l] = ms[j][k]
+			i++
+			fmt.Println("Key:", k, "Value:", values[l])
+		}
+		if key == "" {
+			key = strings.Join(keys, ",")
+		}
+
+		par[j] = fmt.Sprintf("(%s)", strings.Join(pars, ","))
+
+	}
+	sql := fmt.Sprintf("INSERT INTO %s (%s)VALUES%s", table, key, strings.Join(par, ","))
 	println(sql)
 	result, err := t.execute(sql, values...)
 	if err != nil {

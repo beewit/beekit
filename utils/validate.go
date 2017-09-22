@@ -285,3 +285,9 @@ func IsArray(value interface{}) bool {
 	}
 
 }
+
+func IsUrl(url string) bool {
+	reStr := "http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?"
+	flog, _ := regexp.Match(reStr, []byte(url))
+	return flog
+}
