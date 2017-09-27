@@ -164,3 +164,52 @@ func (p *RedisConnPool) GetHashMapInt64(key string) (map[string]int64, error) {
 	defer conn.Close()
 	return redis.Int64Map(conn.Do("HGETALL", key))
 }
+
+func (p *RedisConnPool) SetList(key string, list []string) (interface{}, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return conn.Do("LPUSH", redis.Args{}.Add(key).AddFlat(list)...)
+}
+
+func (p *RedisConnPool) SetStringList(key string, s string) (interface{}, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return conn.Do("LPUSHX", redis.Args{}.Add(key).AddFlat(s)...)
+}
+
+func (p *RedisConnPool) GetFristDel(key string) (interface{}, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return conn.Do("BLPOP", key, 3)
+}
+
+func (p *RedisConnPool) GetLastDel(key string) (interface{}, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return conn.Do("BRPOP", key, 3)
+}
+
+func (p *RedisConnPool) GetListString(key string) ([]string, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return redis.Strings(conn.Do("HGETALL", key, 0, -1))
+}
+
+func (p *RedisConnPool) SetSETString(key string, value string) (int, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return redis.Int(conn.Do("SADD", redis.Args{}.Add(key).AddFlat(value)...))
+}
+
+func (p *RedisConnPool) CheckSETString(key, value string) (int, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	return redis.Int(conn.Do("SISMEMBER", redis.Args{}.Add(key).AddFlat(value)...))
+}
+
+func (p *RedisConnPool) GetSETRandStringRm(key string) (string, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	v, err := conn.Do("SPOP", key)
+	return redis.String(v,err)
+}

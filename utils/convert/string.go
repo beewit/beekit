@@ -7,6 +7,9 @@ import (
 
 // 强制转换一个对象为string
 func MustString(value interface{}) string {
+	if value == nil {
+		return ""
+	}
 	return fmt.Sprintf("%v", value)
 }
 

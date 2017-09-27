@@ -166,7 +166,6 @@ func Obj2Map(obj interface{}) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Logger.Info(string(b[:]))
 	var result map[string]interface{}
 	if err := json.Unmarshal(b, &result); err != nil {
 		panic(err)
@@ -181,7 +180,6 @@ func Obj2MapString(obj interface{}) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Logger.Info(string(b[:]))
 	var result map[string]string
 	if err := json.Unmarshal(b, &result); err != nil {
 		panic(err)
@@ -196,8 +194,22 @@ func Obj2ListMapString(obj interface{}) ([]map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Logger.Info(string(b[:]))
 	var result []map[string]string
+	if err := json.Unmarshal(b, &result); err != nil {
+		panic(err)
+		return nil, err
+	}
+	return result, nil
+}
+
+
+func Obj2ListMap(obj interface{}) ([]map[string]interface{}, error) {
+	// 结构体转json
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return nil, err
+	}
+	var result []map[string]interface{}
 	if err := json.Unmarshal(b, &result); err != nil {
 		panic(err)
 		return nil, err
