@@ -39,7 +39,7 @@ func Separator() string {
 	return path
 }
 
-func substr(s string, pos, length int) string {
+func Substr(s string, pos, length int) string {
 	runes := []rune(s)
 	l := pos + length
 	if l > len(runes) {
@@ -49,7 +49,7 @@ func substr(s string, pos, length int) string {
 }
 
 func getParentDirectory(dirctory string) string {
-	return substr(dirctory, 0, strings.LastIndex(dirctory, "/"))
+	return Substr(dirctory, 0, strings.LastIndex(dirctory, "/"))
 }
 
 //当前目录
