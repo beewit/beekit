@@ -182,6 +182,7 @@ func (p *SqlConnPool) InsertMap(table string, m map[string]interface{}) (int64, 
 	}
 	sql := fmt.Sprintf("INSERT INTO %s (%s)VALUES(%s)", table, strings.Join(keys, ","), strings.Join(pars, ","))
 	println(sql)
+	println(convert.ToString(values))
 	result, err := p.execute(sql, values...)
 	if err != nil {
 		return 0, err

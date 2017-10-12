@@ -50,6 +50,9 @@ func Success(c echo.Context, msg string, data interface{}) error {
 func SuccessNullMsg(c echo.Context, data interface{}) error {
 	return Result(c, SUCCESS_CODE, "", data)
 }
+func SuccessNull(c echo.Context, msg string) error {
+	return Result(c, SUCCESS_CODE, msg, nil)
+}
 
 func Error(c echo.Context, msg string, data interface{}) error {
 	return Result(c, ERROR_CODE, msg, data)
@@ -84,10 +87,6 @@ func Result(c echo.Context, ret int64, msg string, data interface{}) error {
 	return c.JSON(http.StatusOK, resultMap)
 }
 
-func Redirect(c echo.Context, url string) error {
-	return RedirectAndAlert(c, "", url)
-}
-
 func Alert(c echo.Context, tip string) error {
 	return RedirectAndAlert(c, tip, "")
 }
@@ -97,8 +96,12 @@ func RedirectAndAlert(c echo.Context, tip, url string) error {
 	if tip != "" {
 		js += fmt.Sprintf("alert('%v');", tip)
 	}
-	js += fmt.Sprintf("location.href = '%v';", url)
+	js += fmt.Sprintf("parent.location.href = '%v';", url)
 	return ResultHtml(c, fmt.Sprintf("<script>%v</script>", js))
+}
+
+func Redirect(c echo.Context, url string) error{
+	return c.Redirect(http.StatusOK, url)
 }
 
 func ResultHtml(c echo.Context, html string) error {

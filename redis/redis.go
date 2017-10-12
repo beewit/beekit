@@ -211,5 +211,12 @@ func (p *RedisConnPool) GetSETRandStringRm(key string) (string, error) {
 	conn := p.redisPool.Get()
 	defer conn.Close()
 	v, err := conn.Do("SPOP", key)
-	return redis.String(v,err)
+	return redis.String(v, err)
+}
+
+func (p *RedisConnPool) GetSETCount(key string) (int64, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	v, err := conn.Do("SCARD", key)
+	return redis.Int64(v, err)
 }
