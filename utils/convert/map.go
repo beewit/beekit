@@ -138,6 +138,18 @@ func ToMapByte(m map[string]interface{}) []byte {
 	return bt[:]
 }
 
+func ToObjStr(o interface{}) (string) {
+	if o == nil {
+		return ""
+	}
+	bt, err := json.Marshal(o)
+	if err != nil {
+		log.Logger.Error(err.Error())
+		return ""
+	}
+	return string(bt[:])
+}
+
 func ToInterfaceByte(m interface{}) []byte {
 	if m == nil {
 		return nil
@@ -201,7 +213,6 @@ func Obj2ListMapString(obj interface{}) ([]map[string]string, error) {
 	}
 	return result, nil
 }
-
 
 func Obj2ListMap(obj interface{}) ([]map[string]interface{}, error) {
 	// 结构体转json

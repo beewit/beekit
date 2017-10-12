@@ -101,7 +101,7 @@ func RedirectAndAlert(c echo.Context, tip, url string) error {
 }
 
 func Redirect(c echo.Context, url string) error{
-	return c.Redirect(http.StatusOK, url)
+	return c.Redirect(http.StatusMovedPermanently, url)
 }
 
 func ResultHtml(c echo.Context, html string) error {
