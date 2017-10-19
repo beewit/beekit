@@ -7,7 +7,7 @@ import (
 )
 
 var commands = map[string]string{
-	"windows": "cmd /c start",
+	"windows": "cmd",
 	"darwin":  "open",
 	"linux":   "xdg-open",
 }
@@ -17,13 +17,30 @@ func Open(uri string) error {
 	if !ok {
 		return fmt.Errorf("don't know how to open things on %s platform", runtime.GOOS)
 	}
-
-	cmd := exec.Command(run, uri)
+	var cmd *exec.Cmd
+	if run == "cmd" {
+		cmd = exec.Command(run, "/c", "start", uri)
+	} else {
+		cmd = exec.Command(run, uri)
+	}
 	return cmd.Start()
 }
 
-func CloseChrome() {
-	c := "killall chromedriver"
-	cmd := exec.Command("sh", "-c", c)
+func CloseChrome() error {
+	run, ok := commands[runtime.GOOS]
+	if !ok {
+		return fmt.Errorf("don't know how to open things on %s platform", runtime.GOOS)
+	}
+	var cmd *exec.Cmd
+	if run == "cmd" {
+		cmd = exec.Command("taskkill.exe", "/f", "/im", "chromedriver.exe")
+	} else {
+		cmd = exec.Command("sh", "-c", "killall chromedriver")
+	}
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
 	cmd.Output()
+	return nil
 }
