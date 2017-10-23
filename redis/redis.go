@@ -83,7 +83,7 @@ func (p *RedisConnPool) SetAndExpire(key string, value interface{}, expire int64
 	conn := p.redisPool.Get()
 	defer conn.Close()
 	v, err := conn.Do("SET", key, value)
-	if err != nil {
+	if err == nil {
 		v, err = conn.Do("EXPIRE", key, expire)
 	}
 	return v, err

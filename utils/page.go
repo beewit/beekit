@@ -10,6 +10,7 @@ type PageTable struct {
 	Where     string
 	PageIndex int
 	PageSize  int
+	Order     string
 }
 
 type PageData struct {

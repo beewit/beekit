@@ -243,3 +243,11 @@ func String2Map(str string) (map[string]interface{}, error) {
 	}
 	return result, nil
 }
+
+func String2MapList(str string) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	if err := json.Unmarshal([]byte(str), &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
