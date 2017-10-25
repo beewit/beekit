@@ -35,5 +35,9 @@ func GetPageSize(ps string) int {
 	if ps != "" && IsValidNumber(ps) {
 		pageSize = convert.MustInt(ps)
 	}
+	if pageSize > 100 {
+		//防止大量数据查询
+		pageSize = 100
+	}
 	return pageSize
 }

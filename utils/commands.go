@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"syscall"
 )
 
 var commands = map[string]string{
@@ -20,6 +21,7 @@ func Open(uri string) error {
 	var cmd *exec.Cmd
 	if run == "cmd" {
 		cmd = exec.Command(run, "/c", "start", uri)
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	} else {
 		cmd = exec.Command(run, uri)
 	}
@@ -33,7 +35,8 @@ func CloseChrome() error {
 	}
 	var cmd *exec.Cmd
 	if run == "cmd" {
-		cmd = exec.Command("taskkill.exe", "/f", "/im", "chromedriver.exe")
+		cmd = exec.Command("taskkill.exe", "/f", "/t", "/im", "chromedriver.exe")
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	} else {
 		cmd = exec.Command("sh", "-c", "killall chromedriver")
 	}
