@@ -43,6 +43,10 @@ func ToResultParam(b []byte) ResultParam {
 	return rp
 }
 
+func SuccessRespone(c echo.Context, data string) error {
+	return c.HTML(http.StatusOK, data)
+}
+
 func Success(c echo.Context, msg string, data interface{}) error {
 	return Result(c, SUCCESS_CODE, msg, data)
 }
@@ -100,7 +104,7 @@ func RedirectAndAlert(c echo.Context, tip, url string) error {
 	return ResultHtml(c, fmt.Sprintf("<script>%v</script>", js))
 }
 
-func Redirect(c echo.Context, url string) error{
+func Redirect(c echo.Context, url string) error {
 	return c.Redirect(http.StatusMovedPermanently, url)
 }
 
