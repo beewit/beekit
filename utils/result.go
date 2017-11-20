@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"fmt"
 	"encoding/json"
-	"github.com/beewit/beekit/log"
 )
 
 type ResultParam struct {
@@ -37,7 +36,7 @@ func ToResultParam(b []byte) ResultParam {
 	var rp ResultParam
 	err := json.Unmarshal(b[:], &rp)
 	if err != nil {
-		log.Logger.Error(err.Error())
+		println(err.Error())
 		return ResultParam{}
 	}
 	return rp

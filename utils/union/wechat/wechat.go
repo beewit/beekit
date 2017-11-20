@@ -7,7 +7,6 @@ import (
 	"strings"
 	"github.com/beewit/beekit/utils/convert"
 	"github.com/pkg/errors"
-	"github.com/beewit/beekit/log"
 )
 
 var (
@@ -71,7 +70,6 @@ func (w Wechat) GetAccessToken(appId, secret, code string) (map[string]interface
 		return nil, err
 	}
 	res := string(body[:])
-	log.Logger.Info(res)
 	flog := strings.Contains(res, "errcode")
 	if flog {
 		return nil, errors.New(res)

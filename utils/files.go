@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/beewit/beekit/log"
 )
 
 func Read(path string) string {
@@ -78,7 +77,6 @@ func MkdirAll(path string) error {
 	}
 	flog, err := PathExists(path)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return err
 	}
 	if flog {
@@ -87,7 +85,6 @@ func MkdirAll(path string) error {
 	err2 := os.MkdirAll(path, os.ModePerm)
 
 	if err2 != nil {
-		log.Logger.Error(err2.Error())
 		return err2
 	}
 	return nil
@@ -102,7 +99,6 @@ func CreateFile(path string) (*os.File, error) {
 	}
 	file, err := os.Create(path)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	return file, nil

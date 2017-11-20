@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/beewit/beekit/conf"
-	"github.com/beewit/beekit/log"
 	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
 	_ "github.com/go-sql-driver/mysql"
@@ -74,16 +73,13 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	sql := fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s ", page.Table, page.Where)
 	m, err := p.Query(sql, args...)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	c := convert.MustInt64(m[0]["count"])
 
 	sql = fmt.Sprintf("SELECT %s FROM %s %s %s limit %d,%d", page.Fields, page.Table, page.Where, page.Order, (page.PageIndex-1)*page.PageSize, page.PageSize)
-	log.Logger.Info(sql)
 	m, err = p.Query(sql, args...)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	return &utils.PageData{

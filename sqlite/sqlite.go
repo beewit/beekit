@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"strings"
 	"github.com/beewit/beekit/utils"
-	"github.com/beewit/beekit/log"
 	"github.com/beewit/beekit/utils/convert"
 )
 
@@ -22,10 +21,16 @@ type SqlConnPool struct {
 
 var (
 	DB  *SqlConnPool
-	cfg = conf.New("config.json")
+	cfg conf.Config
 )
 
 func init() {
+	flog, err := utils.PathExists("config.json")
+	if err != nil || !flog {
+		println("sqlite Loading config.json error")
+		return
+	}
+	cfg = conf.New("config.json")
 	dataSourceName := cfg.Get("sqlite.database").(string)
 
 	DB = &SqlConnPool{
@@ -55,7 +60,6 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	sql := fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s ", page.Table, page.Where)
 	m, err := p.Query(sql, args...)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	c := convert.MustInt64(m[0]["count"])
@@ -63,7 +67,6 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	sql = fmt.Sprintf("SELECT %s FROM %s %s limit %d OFFSET %d", page.Fields, page.Table, page.Where, page.PageSize, (page.PageIndex-1)*page.PageSize)
 	m, err = p.Query(sql, args...)
 	if err != nil {
-		log.Logger.Error(err.Error())
 		return nil, err
 	}
 	return &utils.PageData{

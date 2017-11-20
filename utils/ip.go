@@ -4,6 +4,7 @@ import (
 	"net"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func GetIp() string {
@@ -22,6 +23,18 @@ func GetIp() string {
 				return ipnet.IP.String()
 			}
 
+		}
+	}
+	return ""
+}
+
+func GetMac() string {
+	interfaces, err := net.Interfaces()
+	if err == nil {
+		for _, inter := range interfaces {
+			if inter.Name == "以太网" {
+				return strings.ToLower(fmt.Sprint(inter.HardwareAddr))
+			}
 		}
 	}
 	return ""
