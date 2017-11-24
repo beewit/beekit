@@ -37,6 +37,17 @@ type IdWorker struct {
 	mutex         sync.Mutex
 }
 
+var UUID *IdWorker
+
+func init()  {
+	UUID,_=NewIdWorker(1)
+}
+
+func ID()int64  {
+	id,_:= UUID.nextid()
+	return id
+}
+
 // NewIdWorker new a snowflake id generator object.
 func NewIdWorker(NodeId int64) (*IdWorker, error) {
 	var districtId int64
