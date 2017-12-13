@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"fmt"
 	"encoding/json"
+	"github.com/beewit/beekit/utils/enum"
 )
 
 type ResultParam struct {
@@ -113,4 +114,30 @@ func ResultHtml(c echo.Context, html string) error {
 
 func ResultString(c echo.Context, str string) error {
 	return c.String(http.StatusOK, str)
+}
+
+func ActionLogs(c echo.Context, t string, accountId int64) map[string]interface{} {
+	return ActionLogsMap(c, t, "", accountId)
+}
+
+func ActionLogsMap(c echo.Context, t, remarks string, accountId int64) map[string]interface{} {
+	actionLog := map[string]interface{}{}
+	if c.FormValue("actionSource") == "" {
+		actionLog["source"] = enum.ACTION_PC
+	} else {
+		actionLog["source"] = c.FormValue("actionSource")
+	}
+	if remarks == "" {
+		actionLog["remarks"] = c.FormValue("actionRemarks")
+	} else {
+		actionLog["remarks"] = remarks
+	}
+	actionLog["id"] = ID()
+	actionLog["account_id"] = accountId
+	actionLog["user_agent"] = c.Request().UserAgent()
+	actionLog["type"] = t
+	actionLog["ct_ip"] = c.RealIP()
+	actionLog["ct_time"] = CurrentTime()
+	actionLog["device"] = c.FormValue("actionDevice")
+	return actionLog
 }

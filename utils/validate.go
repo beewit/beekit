@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/beewit/beekit/utils/convert"
+	"strings"
 )
 
 const (
@@ -290,4 +291,11 @@ func IsUrl(url string) bool {
 	reStr := "http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&=]*)?"
 	flog, _ := regexp.Match(reStr, []byte(url))
 	return flog
+}
+
+func IsWechatBrowser(userAgent string) bool {
+	if strings.Contains(strings.ToLower(userAgent), "micromessenger") {
+		return true
+	}
+	return false
 }
