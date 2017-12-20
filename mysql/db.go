@@ -14,6 +14,7 @@ import (
 	"github.com/beewit/beekit/utils/convert"
 	_ "github.com/go-sql-driver/mysql"
 	"sort"
+	"math"
 )
 
 type SqlConnPool struct {
@@ -75,7 +76,7 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	if err != nil {
 		return nil, err
 	}
-	c := convert.MustInt64(m[0]["count"])
+	c := convert.MustInt(m[0]["count"])
 
 	sql = fmt.Sprintf("SELECT %s FROM %s %s %s limit %d,%d", page.Fields, page.Table, page.Where, page.Order, (page.PageIndex-1)*page.PageSize, page.PageSize)
 	m, err = p.Query(sql, args...)
@@ -83,10 +84,11 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 		return nil, err
 	}
 	return &utils.PageData{
-		PageIndex: page.PageIndex,
-		PageSize:  page.PageSize,
-		Count:     c,
-		Data:      m,
+		PageIndex:  page.PageIndex,
+		PageSize:   page.PageSize,
+		Count:      c,
+		Data:       m,
+		PageNumber: int(math.Ceil(float64(c) / float64(page.PageSize))),
 	}, nil
 }
 

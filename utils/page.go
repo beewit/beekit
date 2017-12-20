@@ -5,18 +5,19 @@ import (
 )
 
 type PageTable struct {
-	Fields    string
-	Table     string
-	Where     string
-	PageIndex int
-	PageSize  int
-	Order     string
+	Fields     string
+	Table      string
+	Where      string
+	PageIndex  int
+	PageSize   int
+	Order      string
 }
 
 type PageData struct {
 	PageIndex int
 	PageSize  int
-	Count     int64
+	PageNumber int
+	Count     int
 	Data      []map[string]interface{}
 }
 
