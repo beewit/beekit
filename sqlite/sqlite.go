@@ -62,7 +62,7 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	if err != nil {
 		return nil, err
 	}
-	c := convert.MustInt64(m[0]["count"])
+	c := convert.MustInt(m[0]["count"])
 
 	sql = fmt.Sprintf("SELECT %s FROM %s %s limit %d OFFSET %d", page.Fields, page.Table, page.Where, page.PageSize, (page.PageIndex-1)*page.PageSize)
 	m, err = p.Query(sql, args...)
