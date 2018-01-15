@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"time"
 
 	"github.com/beewit/beekit/utils/convert"
 	"strings"
@@ -211,6 +212,22 @@ func IsValidBoolean(s string) bool {
 		return true
 	}
 	return false
+}
+
+func IsValidTime(s string) bool {
+	_, err := time.Parse("2006-01-02 15:04:05", s)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func IsValidDate(s string) bool {
+	_, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 // 检查字符串是不是一个合法的数字
