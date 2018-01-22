@@ -13,8 +13,8 @@ import (
 	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
 	_ "github.com/go-sql-driver/mysql"
-	"sort"
 	"math"
+	"sort"
 )
 
 type SqlConnPool struct {
@@ -79,6 +79,7 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	c := convert.MustInt(m[0]["count"])
 
 	sql = fmt.Sprintf("SELECT %s FROM %s %s %s limit %d,%d", page.Fields, page.Table, page.Where, page.Order, (page.PageIndex-1)*page.PageSize, page.PageSize)
+	println(fmt.Sprintf("QueryPage sql：%s", sql))
 	m, err = p.Query(sql, args...)
 	if err != nil {
 		return nil, err

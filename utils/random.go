@@ -1,11 +1,12 @@
 package utils
 
-
 import (
+	"fmt"
+	"github.com/beewit/beekit/utils/convert"
+	"github.com/beewit/beekit/utils/ulid"
 	"math"
 	"math/rand"
 	"time"
-	"github.com/beewit/beekit/utils/ulid"
 )
 
 // Random random
@@ -39,4 +40,18 @@ func (rd Random) ULID() string {
 	t := time.Now()
 	entrop := rand.New(rand.NewSource(t.UnixNano()))
 	return ulid.MustNew(ulid.Timestamp(t), entrop).String()
+}
+
+func (rd Random) NumberByFloat(start, end float64) float64 {
+	r := rand.New(rand.NewSource(ID()))
+	min := convert.MustInt(start * 100)
+	max := convert.MustInt(end * 100)
+	n := min + r.Intn(max-min+1)
+	f := float64(n) / float64(100)
+	return convert.MustFloat64(fmt.Sprintf("%.2f", f))
+}
+
+func (rd Random) NumberByInt(start, end int) int {
+	r := rand.New(rand.NewSource(ID()))
+	return start + r.Intn(end-start+1)
 }
