@@ -31,6 +31,8 @@ const (
 	NOT_MEMBER = 500
 	//会员续费通知
 	MEMBER_RENEW = 501
+
+	AUTH_WECHAT_FAIL = 5401
 )
 
 func ToResultParam(b []byte) ResultParam {
@@ -76,6 +78,10 @@ func AuthFail(c echo.Context, msg string) error {
 
 func AuthFailNull(c echo.Context) error {
 	return Result(c, AUTH_FAIL, "未登录或登陆已失效", nil)
+}
+
+func AuthWechatFailNull(c echo.Context) error {
+	return Result(c, AUTH_WECHAT_FAIL, "微信未能获取授权", nil)
 }
 
 func ResultApi(c echo.Context, data interface{}) error {

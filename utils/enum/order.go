@@ -9,9 +9,9 @@ const (
 	PAY_STATUS_END      = "已支付"
 	PAY_STATUS_ABNORMAL = "支付异常"
 
-	PAY_TYPE_ALIPAY    = "支付宝"
-	PAY_TYPE_WECHAT    = "微信"
-	PAY_TYPE_WECHATAPP = "微信APP"
-
+	PAY_TYPE_ALIPAY          = "支付宝"
+	PAY_TYPE_WECHAT          = "微信"
+	PAY_TYPE_WECHATAPP       = "微信APP"
+	PAY_TYPE_WECHAT_H5       = "微信H5"
 	PAY_TYPE_WECHAT_MINI_APP = "微信小程序"
 )

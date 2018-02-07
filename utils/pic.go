@@ -1,16 +1,16 @@
 package utils
 
 import (
+	crand "crypto/rand"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"io"
-	"net/http"
 	"math/rand"
-	crand "crypto/rand"
-	"time"
-	"fmt"
+	"net/http"
 	"strconv"
+	"time"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 var font = [][]byte{
-	{// 0
+	{ // 0
 		0, 1, 1, 1, 0,
 		1, 0, 0, 0, 1,
 		1, 0, 0, 0, 1,
@@ -36,7 +36,7 @@ var font = [][]byte{
 		1, 0, 0, 0, 1,
 		0, 1, 1, 1, 0,
 	},
-	{// 1
+	{ // 1
 		0, 0, 1, 0, 0,
 		0, 1, 1, 0, 0,
 		1, 0, 1, 0, 0,
@@ -46,7 +46,7 @@ var font = [][]byte{
 		0, 0, 1, 0, 0,
 		1, 1, 1, 1, 1,
 	},
-	{// 2
+	{ // 2
 		0, 1, 1, 1, 0,
 		1, 0, 0, 0, 1,
 		0, 0, 0, 0, 1,
@@ -56,7 +56,7 @@ var font = [][]byte{
 		1, 0, 0, 0, 0,
 		1, 1, 1, 1, 1,
 	},
-	{// 3
+	{ // 3
 		1, 1, 1, 1, 0,
 		0, 0, 0, 0, 1,
 		0, 0, 0, 1, 0,
@@ -66,7 +66,7 @@ var font = [][]byte{
 		0, 0, 0, 0, 1,
 		1, 1, 1, 1, 0,
 	},
-	{// 4
+	{ // 4
 		1, 0, 0, 1, 0,
 		1, 0, 0, 1, 0,
 		1, 0, 0, 1, 0,
@@ -76,7 +76,7 @@ var font = [][]byte{
 		0, 0, 0, 1, 0,
 		0, 0, 0, 1, 0,
 	},
-	{// 5
+	{ // 5
 		1, 1, 1, 1, 1,
 		1, 0, 0, 0, 0,
 		1, 0, 0, 0, 0,
@@ -86,7 +86,7 @@ var font = [][]byte{
 		0, 0, 0, 0, 1,
 		1, 1, 1, 1, 0,
 	},
-	{// 6
+	{ // 6
 		0, 0, 1, 1, 1,
 		0, 1, 0, 0, 0,
 		1, 0, 0, 0, 0,
@@ -96,7 +96,7 @@ var font = [][]byte{
 		1, 0, 0, 0, 1,
 		0, 1, 1, 1, 0,
 	},
-	{// 7
+	{ // 7
 		1, 1, 1, 1, 1,
 		0, 0, 0, 0, 1,
 		0, 0, 0, 0, 1,
@@ -106,7 +106,7 @@ var font = [][]byte{
 		0, 1, 0, 0, 0,
 		0, 1, 0, 0, 0,
 	},
-	{// 8
+	{ // 8
 		0, 1, 1, 1, 0,
 		1, 0, 0, 0, 1,
 		1, 0, 0, 0, 1,
@@ -116,7 +116,7 @@ var font = [][]byte{
 		1, 0, 0, 0, 1,
 		0, 1, 1, 1, 0,
 	},
-	{// 9
+	{ // 9
 		0, 1, 1, 1, 0,
 		1, 0, 0, 0, 1,
 		1, 0, 0, 0, 1,
@@ -168,7 +168,7 @@ func NewImage(digits []byte, width, height int) *Image {
 	}
 
 	// Draw strike-through line.
-	img.strikeThrough()
+	//img.strikeThrough()
 	return img
 }
 
@@ -413,8 +413,8 @@ func main() {
 	http.HandleFunc("/", index)
 	s := &http.Server{
 		Addr:           ":8080",
-		ReadTimeout:    30*time.Second,
-		WriteTimeout:   30*time.Second,
+		ReadTimeout:    30 * time.Second,
+		WriteTimeout:   30 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	s.ListenAndServe()
