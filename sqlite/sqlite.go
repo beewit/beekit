@@ -11,6 +11,7 @@ import (
 	"strings"
 	"github.com/beewit/beekit/utils"
 	"github.com/beewit/beekit/utils/convert"
+	"math"
 )
 
 type SqlConnPool struct {
@@ -74,6 +75,7 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 		PageSize:  page.PageSize,
 		Count:     c,
 		Data:      m,
+		PageNumber: int(math.Ceil(float64(c) / float64(page.PageSize))),
 	}, nil
 }
 

@@ -71,14 +71,20 @@ func (p *SqlConnPool) QueryPage(page *utils.PageTable, args ...interface{}) (*ut
 	if page.Order != "" {
 		page.Order = " ORDER BY " + page.Order
 	}
-	sql := fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s ", page.Table, page.Where)
+	var sql string
+	if page.Groupby != "" {
+		page.Groupby = " GROUP BY " + page.Groupby
+		sql = fmt.Sprintf("SELECT COUNT(1) count FROM (SELECT %s FROM %s %s %s) c", page.Fields, page.Table, page.Where, page.Groupby)
+	} else {
+		sql = fmt.Sprintf("SELECT COUNT(1) count FROM  %s %s", page.Table, page.Where)
+	}
 	m, err := p.Query(sql, args...)
 	if err != nil {
 		return nil, err
 	}
 	c := convert.MustInt(m[0]["count"])
 
-	sql = fmt.Sprintf("SELECT %s FROM %s %s %s limit %d,%d", page.Fields, page.Table, page.Where, page.Order, (page.PageIndex-1)*page.PageSize, page.PageSize)
+	sql = fmt.Sprintf("SELECT %s FROM %s %s %s %s limit %d,%d", page.Fields, page.Table, page.Where, page.Groupby, page.Order, (page.PageIndex-1)*page.PageSize, page.PageSize)
 	println(fmt.Sprintf("QueryPage sql：%s", sql))
 	m, err = p.Query(sql, args...)
 	if err != nil {

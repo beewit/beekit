@@ -220,3 +220,10 @@ func (p *RedisConnPool) GetSETCount(key string) (int64, error) {
 	v, err := conn.Do("SCARD", key)
 	return redis.Int64(v, err)
 }
+
+func (p *RedisConnPool) DelSETKeyValue(key string, value ...string) (int64, error) {
+	conn := p.redisPool.Get()
+	defer conn.Close()
+	v, err := conn.Do("SREM", redis.Args{}.Add(key).AddFlat(value)...)
+	return redis.Int64(v, err)
+}

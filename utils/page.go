@@ -5,20 +5,21 @@ import (
 )
 
 type PageTable struct {
-	Fields     string
-	Table      string
-	Where      string
-	PageIndex  int
-	PageSize   int
-	Order      string
+	Fields    string
+	Table     string
+	Where     string
+	PageIndex int
+	PageSize  int
+	Order     string
+	Groupby   string
 }
 
 type PageData struct {
-	PageIndex int
-	PageSize  int
+	PageIndex  int
+	PageSize   int
 	PageNumber int
-	Count     int
-	Data      []map[string]interface{}
+	Count      int
+	Data       []map[string]interface{}
 }
 
 const PAGE_SIZE = 10
