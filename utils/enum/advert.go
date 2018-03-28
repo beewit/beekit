@@ -1,0 +1,13 @@
+package enum
+
+const (
+	ACCOUNT_ADVERT_TEXT     = "文本"
+	ACCOUNT_ADVERT_IMG      = "图片"
+	ACCOUNT_ADVERT_IMG_TEXT = "图文"
+
+	ACCOUNT_ADVERT_APPLY_ALL     = "不限"
+	ACCOUNT_ADVERT_APPLY_FISSION = "裂变营销"
+	ACCOUNT_ADVERT_APPLY_AUTO    = "自动营销"
+	ACCOUNT_ADVERT_APPLY_EMAIL   = "邮箱营销"
+	ACCOUNT_ADVERT_APPLY_SMS     = "短信营销"
+)

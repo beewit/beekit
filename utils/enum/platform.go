@@ -12,4 +12,7 @@ const (
 	WEIBO_ID  = 10
 	TAOBAO_ID = 13
 	QQ_ID     = 18
+
+	APP = "APP"
+	PC  = "PC"
 )
