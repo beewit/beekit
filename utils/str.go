@@ -1,7 +1,15 @@
 package utils
 
+import (
+	"regexp"
+)
+
 func SubStrByByte(str string, length int) string {
-	bs := []byte(str)[:length]
+	bt := []byte(str)
+	if len(bt) <= length {
+		return str
+	}
+	bs := bt[:length]
 	bl := 0
 	for i := len(bs) - 1; i >= 0; i-- {
 		switch {
@@ -33,5 +41,14 @@ func SubStrByByte(str string, length int) string {
 }
 
 func SubStrByByteInChar(str string, length int) string {
-	return SubStrByByte(str, length-2) + ".."
+	s := SubStrByByte(str, length-8)
+	if s == str {
+		return str
+	}
+	return SubStrByByte(str, length-8) + ".."
+}
+
+func MobileReplaceRepl(str string) string {
+	re, _ := regexp.Compile("(\\d{3})(\\d{4})(\\d{4})")
+	return re.ReplaceAllString(str, "$1****$3")
 }
